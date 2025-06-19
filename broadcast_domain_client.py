@@ -11,7 +11,7 @@ def handle_connection(sockets, socket):
             if sock == sys.stdin:
                 message = sys.stdin.readline()
                 socket.sendall(message.encode('utf-8'))
-                if message.lower() == '/exit':
+                if message.strip().lower() == '/exit':
                     print("Exiting client...")
                     return
             else:

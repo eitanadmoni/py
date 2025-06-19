@@ -17,7 +17,13 @@ def change_rooms(new_room, client, client_to_name_and_room, room_to_clients):
             room_to_clients[new_room] = [client]
         client_to_name_and_room[client] = (client_to_name_and_room[client][0], new_room)
         print(f"Client {client_to_name_and_room[client][0]} moved to room {new_room}")
-        print(room_to_clients)
+
+
+def remove_client(clients, client, room_to_clients, client_to_name_and_room):
+    print(f"Client {client_to_name_and_room[client][0]} has exited the room {client_to_name_and_room[client][1]}")
+    clients.remove(client)
+    room_to_clients[client_to_name_and_room[client][1]].remove(client)
+    client.close()
 
 
 def handle_multiple_clients(clients, client_to_name_and_room,  room_to_clients):
@@ -30,28 +36,25 @@ def handle_multiple_clients(clients, client_to_name_and_room,  room_to_clients):
         for client in readable:
             try:
                 data = client.recv(1024)
-                print(data.decode('utf-8'))
                 if not data:
                     clients.remove(client)
                     client.close()
                     continue
 
-                if data.decode('utf-8') == '/exit':
-                    print(f"Client {client_to_name_and_room[client][0]} has exited the room {client_to_name_and_room[client][1]}")
-                    clients.remove(client)
-                    client.close()
+                if data.decode('utf-8').strip() == '/exit':
+                    remove_client(clients, client, room_to_clients, client_to_name_and_room)
                     continue
 
-                if data.decode('utf-8').split()[0] == '/transfer':
+                if data.decode('utf-8').strip().split()[0] == '/transfer':
                     _, new_room = data.decode('utf-8').split()
                     new_room = int(new_room)
                     change_rooms(new_room, client, client_to_name_and_room, room_to_clients)
                     continue
-                
-                msg_client = client_to_name_and_room[client][0] + ": "
-                for other_client in room_to_clients[client_to_name_and_room[client][1]]:
-                    if other_client != client:
-                        other_client.sendall(msg_client.encode() + data)
+                else:
+                    msg_client = client_to_name_and_room[client][0] + ": "
+                    for other_client in room_to_clients[client_to_name_and_room[client][1]]:
+                        if other_client != client:
+                            other_client.sendall(msg_client.encode() + data)
 
             except Exception as e:
                 print(f"An error occurred: {e}")
