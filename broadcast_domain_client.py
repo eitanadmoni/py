@@ -4,18 +4,22 @@ import sys
 import select
 
 
-def handle_connection(sockets, socket):
+EXIT = '/exit'
+MESSAGE_MAX_LENGTH = 1024
+
+
+def handle_connection(sockets, client_socket):
     while True:
         readable, _, _ = select.select(sockets, [], [])
         for sock in readable:
             if sock == sys.stdin:
                 message = sys.stdin.readline()
-                socket.sendall(message.encode('utf-8'))
-                if message.strip().lower() == '/exit':
+                client_socket.sendall(message.encode('utf-8'))
+                if message.strip().lower() == EXIT:
                     print("Exiting client...")
                     return
             else:
-                data = sock.recv(1024)
+                data = sock.recv(MESSAGE_MAX_LENGTH)
                 if not data:
                     print("Server disconnected.")
                     return
@@ -46,6 +50,11 @@ def get_arguments():
     return parser.parse_args()
 
 
-if __name__ == "__main__":
+def main():
     args = get_arguments()
     client_connection(args.ip, args.port, args.name, args.room)
+
+    
+if __name__ == "__main__":
+    main()
+    
