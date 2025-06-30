@@ -3,7 +3,6 @@ import argparse
 import select
 
 
-SERVER_IP = "127.0.0.1"
 MAX_CLIENTS = 4
 EXIT = '/exit'
 TRANSFER = '/transfer'
