@@ -104,10 +104,9 @@ def server_connection(port):
     room_to_clients = {}
     client_to_name_and_room = {}
     clients = []
-    num_of_clients = 0
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-            server_socket.bind((SERVER_IP, port))
+            server_socket.bind(('', port))
             server_socket.listen()
             print(f"Server listening on port {port}")
             clients += server_socket
